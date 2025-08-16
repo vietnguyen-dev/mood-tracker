@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes:
+    emerald --default,
+    sunset --prefersdark;
+  root: ":root";
+  include:;
+  exclude:;
+  prefix:;
+  logs: true;
+}

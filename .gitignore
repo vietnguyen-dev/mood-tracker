@@ -1,0 +1,10 @@
+**/node_modules/
+**.env
+.env.local
+.env.prod
+wordpress/
+db_data
+**/dist
+
+frontend/src/routeTree.gen.ts
+frontend/.tanstack/
