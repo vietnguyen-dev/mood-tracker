@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Chart as ChartJS,
@@ -46,33 +46,6 @@ export const options = {
   },
 };
 
-const labels = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "november",
-  "december",
-];
-
-const data = {
-  labels,
-  datasets: [
-    {
-      label: "Mood Ratings",
-      data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10],
-      borderColor: "rgb(53, 162, 235)",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
-    },
-  ],
-};
-
 const setTimes = [
   { long: "5 Years", short: "5Yr" },
   { long: "1 Year", short: "1Yr" },
@@ -82,7 +55,180 @@ const setTimes = [
   { long: "1 Day", short: "1D" },
 ];
 
+const moodOptions = [
+  { label: "1", value: 1 },
+  { label: "2", value: 2 },
+  { label: "3", value: 3 },
+  { label: "4", value: 4 },
+  { label: "5", value: 5 },
+  { label: "6", value: 6 },
+  { label: "7", value: 7 },
+  { label: "8", value: 8 },
+  { label: "9", value: 9 },
+  { label: "10", value: 10 },
+];
+
+interface iMoodData {
+  date: string;
+  mood: number;
+  notes: string;
+}
+
+let sampleData = [
+  {
+    date: "2025-01-01",
+    mood: 1,
+    notes: "I'm feeling great!",
+  },
+  {
+    date: "2025-01-02",
+    mood: 2,
+    notes: "I'm feeling good!",
+  },
+  {
+    date: "2025-01-03",
+  },
+  {
+    date: "2025-01-04",
+    mood: 4,
+    notes: "I'm feeling bad!",
+  },
+
+  {
+    date: "2025-01-05",
+    mood: 5,
+    notes: "I'm feeling terrible!",
+  },
+
+  {
+    date: "2025-01-06",
+    mood: 6,
+    notes: "I'm feeling terrible!",
+  },
+
+  {
+    date: "2025-01-07",
+    mood: 7,
+    notes: "I'm feeling terrible!",
+  },
+
+  {
+    date: "2025-01-08",
+    mood: 8,
+    notes: "I'm feeling terrible!",
+  },
+
+  {
+    date: "2025-01-09",
+    mood: 9,
+    notes: "I'm feeling terrible!",
+  },
+];
+
+const labels = sampleData.map((data) => data.date);
+const moodData = sampleData.map((data) => data.mood);
+
+interface iData {
+  labels: string[] | [];
+  datasets: {
+    label: string;
+    data: number[] | [];
+    borderColor: string;
+    backgroundColor: string;
+  }[];
+}
+
+const data = {
+  labels,
+  datasets: [
+    {
+      label: "Mood Ratings",
+      data: moodData,
+      borderColor: "rgb(51, 60, 77)",
+      backgroundColor: "rgb(51, 60, 77)",
+    },
+  ],
+};
+
 function Admin() {
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [mood, setMood] = useState<number>(0);
+  const [notes, setNotes] = useState<string>("");
+  const [timeFrame, setTimeFrame] = useState<string>("");
+  const [data, setData] = useState<iData>({
+    labels: [],
+    datasets: [
+      {
+        label: "Mood Ratings",
+        data: [],
+        borderColor: "rgb(51, 60, 77)",
+        backgroundColor: "rgb(51, 60, 77)",
+      },
+    ],
+  });
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(e.target.value);
+  };
+
+  const handleDateRangeChange = (timeFrame: string) => {
+    setTimeFrame(timeFrame);
+    if (timeFrame === "5Yr") {
+      setStartDate(
+        new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      );
+      setEndDate(new Date().toISOString().split("T")[0]);
+    } else if (timeFrame === "1Yr") {
+      setStartDate(
+        new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      );
+      setEndDate(new Date().toISOString().split("T")[0]);
+    } else if (timeFrame === "6M") {
+      setStartDate(
+        new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      );
+      setEndDate(new Date().toISOString().split("T")[0]);
+    } else if (timeFrame === "1M") {
+      setStartDate(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      );
+      setEndDate(new Date().toISOString().split("T")[0]);
+    } else if (timeFrame === "1W") {
+      setStartDate(
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      );
+      setEndDate(new Date().toISOString().split("T")[0]);
+    } else if (timeFrame === "1D") {
+      setStartDate(
+        new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+      );
+      setEndDate(new Date().toISOString().split("T")[0]);
+    }
+  };
+
+  const handleMoodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setMood(Number(e.target.value));
+  };
+
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNotes(e.target.value);
+  };
+
   return (
     <div className="p-6">
       <h3 className="text-2xl font-semibold z-50 mb-3">
@@ -91,13 +237,23 @@ function Admin() {
       <div className="md:gap-3 xl:grid xl:grid-cols-[85%_15%]">
         <section className="mb-12 min-w-[50%] md:mr-3">
           <div className="mb-6 flex flex-row gap-2">
-            <input type="date" className="input" />
-            <input type="date" className="input" />
-            <button className="btn btn-primary md:mr-12">
+            <input
+              type="date"
+              className="input"
+              value={startDate}
+              onChange={handleStartDateChange}
+            />
+            <input
+              type="date"
+              className="input"
+              value={endDate}
+              onChange={handleEndDateChange}
+            />
+            <button className="btn btn-neutral md:mr-12">
               <img src={refresh} alt="refresh" className="w-6" />
             </button>
             <button
-              className="btn btn-secondary w-[90%] max-w-50 xl hidden xl:inline"
+              className="btn btn-primary w-[90%] max-w-50 xl hidden xl:inline"
               onClick={() => {
                 const modal = document.getElementById(
                   "new-mood-modal"
@@ -112,7 +268,13 @@ function Admin() {
           </div>
           <div className="join mb-6">
             {setTimes.map((time) => (
-              <button className="btn join-item" key={time.long}>
+              <button
+                className={`btn join-item ${
+                  timeFrame === time.short ? "btn-neutral" : "btn-primary"
+                }`}
+                key={time.long}
+                onClick={() => handleDateRangeChange(time.short)}
+              >
                 <span className="hidden lg:inline">{time.long}</span>
                 <span className="lg:hidden">{time.short}</span>
               </button>
@@ -120,7 +282,7 @@ function Admin() {
           </div>
           <Line options={options} data={data} />
           <button
-            className="btn btn-secondary w-[90%] mt-3 max-w-50 xl:hidden"
+            className="btn btn-primary w-[90%] mt-3 max-w-50 xl:hidden"
             onClick={() => {
               const modal = document.getElementById(
                 "new-mood-modal"
@@ -137,36 +299,36 @@ function Admin() {
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-1">
             <div className="card bg-base-100 card-md shadow-sm">
               <div className="card-body">
-                <h2 className="card-title text-2xl text-secondary">N%</h2>
+                <h2 className="card-title text-2xl text-primary">N%</h2>
                 <p>mood increase from previous month</p>
               </div>
             </div>
             <div className="card bg-base-100 card-md shadow-sm">
               <div className="card-body">
-                <h2 className="card-title text-2xl text-primary">N%</h2>
+                <h2 className="card-title text-2xl text-neutral">N%</h2>
                 <p>omething increase from previous month</p>
               </div>
             </div>
             <div className="card bg-base-100 card-md shadow-sm ">
               <div className="card-body">
-                <h2 className="card-title text-2xl text-secondary">N%</h2>
+                <h2 className="card-title text-2xl text-primary">N%</h2>
                 <p>mood increase from previous month</p>
               </div>
             </div>
             <div className="card bg-base-100 card-md shadow-sm ">
               <div className="card-body">
-                <h2 className="card-title text-2xl text-primary">N%</h2>
+                <h2 className="card-title text-2xl text-neutral">N%</h2>
                 <p>omething increase from previous month</p>
               </div>
             </div>
           </div>
         </section>
         <section className="my-12 flex justify-between flex-wrap">
-          <button className="btn btn-primary text-white">
+          <button className="btn btn-neutral text-white">
             Generate Report
           </button>
           <div className="flex gap-3">
-            <button className="btn btn-secondary" disabled={true}>
+            <button className="btn btn-primary" disabled={true}>
               Save
             </button>
             <button className="btn btn-accent" disabled={true}>
@@ -186,18 +348,30 @@ function Admin() {
           <form>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Rate Your Mood</legend>
-              <select defaultValue="Pick a Rating" className="select">
-                <option disabled={true}>Pick a color</option>
-                <option>Crimson</option>
-                <option>Amber</option>
-                <option>Velvet</option>
+              <select
+                defaultValue="Pick a Rating"
+                className="select"
+                onChange={handleMoodChange}
+                value={mood}
+              >
+                {moodOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </fieldset>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Special Notes</legend>
-              <textarea className="textarea h-24" placeholder="Bio"></textarea>
+              <textarea
+                className="textarea h-24"
+                placeholder="Notes Here"
+                onChange={handleNotesChange}
+                value={notes}
+              ></textarea>
               <div className="label">Optional</div>
             </fieldset>
+            <button className="btn btn-primary mt-3">Add Mood</button>
           </form>
           <p className="py-4">
             Press ESC key, click on the X, or click outside to close.
