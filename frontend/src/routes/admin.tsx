@@ -68,12 +68,6 @@ const moodOptions = [
   { label: "10", value: 10 },
 ];
 
-interface iMoodData {
-  date: string;
-  mood: number;
-  notes: string;
-}
-
 let sampleData = [
   {
     date: "2025-01-01",
