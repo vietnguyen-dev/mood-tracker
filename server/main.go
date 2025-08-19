@@ -17,7 +17,7 @@ func main() {
 	host := os.Getenv("HOST")
 	r := mux.NewRouter()
 	r.Host(host)
-	r.HandleFunc("/api/moods/{user_id}", MoodsHandler)
+	r.HandleFunc("/api/moods/{user_id}", routes.MoodsHandler)
 	http.ListenAndServe(":8080", r)
 }
 

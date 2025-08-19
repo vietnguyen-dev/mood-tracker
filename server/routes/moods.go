@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"github.com/vietnguyen-dev/go-server/utils"
+	"github.com/gorilla/mux"
 	"database/sql"
 	"encoding/json"
 )
@@ -21,7 +22,10 @@ func MoodsHandler(w http.ResponseWriter, r *http.Request) {
 	utils.Connect()
 	defer utils.Close()
 
-	rows, err := utils.DB.Query("SELECT * FROM vw_moods where user_id = 1;")
+	vars := mux.Vars(r)	
+	user_id := vars["user_id"]
+
+	rows, err := utils.DB.Query("SELECT * FROM vw_moods where user_id = ?;", user_id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
