@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  # React Frontend (served by Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - mood-tracker-network
+
+  # Go Backend Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - HOST=localhost
+      - PORT=8080
+      - DB_PATH=/app/data/mood.db
+    depends_on:
+      - database
+    networks:
+      - mood-tracker-network
+    restart: unless-stopped
+
+  # SQLite Database (using a volume for persistence)
+  database:
+    image: alpine:latest
+    volumes:
+      - ./data:/data
+      - ./dbo:/docker-entrypoint-initdb.d
+    command: >
+      sh -c "
+        apk add --no-cache sqlite &&
+        sqlite3 /data/mood.db < /docker-entrypoint-initdb.d/mood.sql &&
+        echo 'Database initialized successfully' &&
+        tail -f /dev/null
+      "
+    networks:
+      - mood-tracker-network
+
+volumes:
+  data:
+
+networks:
+  mood-tracker-network:
+    driver: bridge

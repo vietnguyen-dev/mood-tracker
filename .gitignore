@@ -10,3 +10,4 @@ db_data
 
 frontend/src/routeTree.gen.ts
 frontend/.tanstack/
+.DS_Store
