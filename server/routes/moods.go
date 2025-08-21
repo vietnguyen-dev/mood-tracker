@@ -4,31 +4,26 @@ import (
 	"net/http"
 	"github.com/vietnguyen-dev/go-server/utils"
 	"github.com/gorilla/mux"
-	"database/sql"
 	"encoding/json"
-	"io"
 	"fmt"
 	"time"
+	"github.com/vietnguyen-dev/go-server/routes/models"
 )
-
-type Mood struct {
-	ID int `json:"id"`
-	Mood int `json:"mood"`
-	Note string `json:"note"`
-	UserId int `json:"user_id"`
-	CreatedAt sql.NullString `json:"created_at"`
-	UpdatedAt sql.NullString `json:"updated_at"`
-	DeletedAt sql.NullString `json:"deleted_at"`
-}
 
 func GetMoods(w http.ResponseWriter, r *http.Request) {
 	// Get database connection from pool
 	db := utils.GetDB()
-	
-	vars := mux.Vars(r)	
-	user_id := vars["user_id"]
+	user_id := mux.Vars(r)["user_id"]
+	if user_id == "" {
+		http.Error(w, "no user id", http.StatusBadRequest)
+		return
+	}
 	start_date := r.URL.Query().Get("start_date")
 	end_date := r.URL.Query().Get("end_date")
+	if start_date == "" || end_date == "" {
+		http.Error(w, "start_date and end_date are required", http.StatusBadRequest)
+		return
+	}
 
 	rows, err := db.Query("SELECT * FROM vw_moods where user_id = ? AND created_at >= ? AND created_at <= ?;", user_id, start_date, end_date)
 	if err != nil {
@@ -37,9 +32,9 @@ func GetMoods(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var moods []Mood
+	var moods []models.Mood
 	for rows.Next() {
-		var mood Mood
+		var mood models.Mood
 		err := rows.Scan(&mood.ID, &mood.Mood, &mood.Note, &mood.UserId, &mood.CreatedAt, &mood.UpdatedAt, &mood.DeletedAt)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -52,26 +47,17 @@ func GetMoods(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(moods)
 }
 
-type MoodRequest struct {
-	Mood int `json:"mood"`
-	Note string `json:"note"`
-}
-
 func InsertMood(w http.ResponseWriter, r *http.Request) {
+	var moodRequest models.MoodRequest
+	err := json.NewDecoder(r.Body).Decode(&moodRequest)
+	if err := moodRequest.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	db := utils.GetDB()
 	vars := mux.Vars(r)
 	user_id := vars["user_id"]
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	var moodRequest MoodRequest
-	err = json.Unmarshal(body, &moodRequest)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	
 	insert, err := db.Exec("INSERT INTO moods (mood, notes, user_id, created_at) VALUES (?, ?, ?, ?);", moodRequest.Mood, moodRequest.Note, user_id, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
@@ -87,26 +73,15 @@ func InsertMood(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("Mood inserted successfully with id: %d", insert_id)))
 }
 
-type EditMoodRequest struct {
-	ID int `json:"id"`
-	Mood int `json:"mood"`
-	Notes string `json:"notes"`
-}
-
 func UpdateMood(w http.ResponseWriter, r *http.Request) {
+	var editMoodRequest models.EditMoodRequest
+	err := json.NewDecoder(r.Body).Decode(&editMoodRequest)
+	if err := editMoodRequest.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	db := utils.GetDB()
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	var editMoodRequest EditMoodRequest
-	err = json.Unmarshal(body, &editMoodRequest)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	
 	edit, err := db.Exec("UPDATE moods SET mood = ?, notes = ?, updated_at = ? WHERE id = ?;", editMoodRequest.Mood, editMoodRequest.Notes, time.Now().Format("2006-01-02 15:04:05"), editMoodRequest.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
