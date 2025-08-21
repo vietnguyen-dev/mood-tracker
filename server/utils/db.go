@@ -6,39 +6,50 @@ import (
     "log"
 	"os"
 	"github.com/joho/godotenv"
+	"time"
 )
 
 var DB *sql.DB
 
-// Connect opens the SQLite database and assigns it to the global variable
-func Connect() {
+// InitDB initializes the database connection pool once
+func InitDB() error {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return err
 	}
 
 	dbPath := os.Getenv("DB_PATH")
     var dbErr error
     DB, dbErr = sql.Open("sqlite3", dbPath)
     if dbErr != nil {
-        log.Fatalf("Failed to open database: %v", err)
+        return dbErr
     }
 
-    // Optional: test the connection
+    // Configure connection pool settings
+    DB.SetMaxOpenConns(10)
+    DB.SetMaxIdleConns(5)
+    DB.SetConnMaxLifetime(time.Hour)
+
+    // Test the connection
     if testErr := DB.Ping(); testErr != nil {
-        log.Fatalf("Failed to ping database: %v", testErr)
+        return testErr
     }
 
-    log.Println("Database connected!")
+    log.Println("Database Pool Initialized!")
+    return nil
 }
 
-// Close safely closes the database connection
-func Close() {
+// GetDB returns the database connection pool
+func GetDB() *sql.DB {
+    return DB
+}
+
+// CloseDB closes the entire connection pool (only call this when shutting down)
+func CloseDB() error {
     if DB != nil {
-        if err := DB.Close(); err != nil {
-            log.Printf("Failed to close database: %v", err)
-        } else {
-            log.Println("Database closed!")
-        }
+        log.Println("Closing database pool...")
+        return DB.Close()
     }
+    return nil
 }
+
