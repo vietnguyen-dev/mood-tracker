@@ -22,38 +22,28 @@ func ApiKeyAuth(next http.Handler) http.Handler {
 			return
 		}
 		db := utils.GetDB()
-		
-		// hash the key
 		decodedKey, err := base64.StdEncoding.DecodeString(apiKey)
-		if err != nil {
-			http.Error(w, "Invalid API key", http.StatusUnauthorized)
-			return
-		}
+        if err != nil {
+            http.Error(w, "Invalid API key", http.StatusUnauthorized)
+            return
+        }
+
         hashed := sha256.Sum256(decodedKey)
-		hashedBytes := hashed[:]  // convert array -> slice
-		byteToString := base64.StdEncoding.EncodeToString(hashedBytes)
+        hashedBase64 := base64.StdEncoding.EncodeToString(hashed[:])
 
-		var id int64
-		var hashedKey string
-		err = db.QueryRow("SELECT * FROM vw_api_keys WHERE hashed_key = ?;", hashedBytes).Scan(&id, &hashedKey)
-		if sql.ErrNoRows == err {
-			http.Error(w, "API key is not registered", http.StatusUnauthorized)
-			log.Println("Error querying API key: ", err, "hashedKey: ", hashedKey, "byteToString: ", byteToString)
-			return
-		}
-		if err != nil {
-			http.Error(w, "Error querying API key", http.StatusUnauthorized)
-			log.Println("Error querying API key: ", err, "hashedKey: ", hashedKey, "byteToString: ", byteToString)
-			return
-		}
-		if hashedKey == "" {
-			http.Error(w, "Invalid API key", http.StatusUnauthorized)
-			return
-		}
+        var id int64
+        var storedHash string
+        err = db.QueryRow("SELECT id, hashed_key FROM api_keys WHERE hashed_key = ?", hashedBase64).Scan(&id, &storedHash)
+        if err == sql.ErrNoRows {
+            http.Error(w, "API key is not registered", http.StatusUnauthorized)
+            return
+        }
+        if err != nil {
+            http.Error(w, "Error querying API key", http.StatusInternalServerError)
+            log.Println("DB error:", err)
+            return
+        }
 
-		// if the key is valid, continue to the next handler
-		if hashedKey == byteToString {
-			next.ServeHTTP(w, r)
-		}
+        next.ServeHTTP(w, r)
 	})
 }
