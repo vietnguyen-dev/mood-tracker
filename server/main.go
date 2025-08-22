@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/vietnguyen-dev/go-server/routes"
 	"github.com/vietnguyen-dev/go-server/utils"
+	"github.com/vietnguyen-dev/go-server/middleware"
 )
 
 func main() {
@@ -25,11 +26,15 @@ func main() {
 	host := os.Getenv("HOST")
 	r := mux.NewRouter()
 	r.Host(host)
+	r.Use(middleware.ApiKeyAuth)
 	api := r.PathPrefix("/api").Subrouter()
+
+	// Moods
 	api.HandleFunc("/moods/{user_id}", routes.GetMoods).Methods("GET")
 	api.HandleFunc("/moods/{user_id}", routes.InsertMood).Methods("POST")
 	api.HandleFunc("/moods", routes.UpdateMood).Methods("PUT")
 	api.HandleFunc("/moods", routes.DeleteMood).Methods("DELETE")
+
 	http.ListenAndServe(":8080", r)
 }
 

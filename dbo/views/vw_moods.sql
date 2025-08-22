@@ -1,3 +1,5 @@
 CREATE VIEW vw_moods AS
-SELECT * FROM moods 
+SELECT 
+  * 
+FROM moods 
 WHERE deleted_at IS NULL;

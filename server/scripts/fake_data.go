@@ -9,7 +9,6 @@ import (
 	"github.com/joho/godotenv"
 	"os"
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"fmt"
 )
@@ -28,12 +27,20 @@ func main() {
     if dbErr != nil {
         log.Fatal("Error opening database")
     }
+	
+	// Array of 3 realistic mood notes
+	moodNotes := []string{
+		"Feeling productive and energetic today!",
+		"Had a challenging day but staying positive.",
+		"Great mood, everything is going well.",
+	}
+	
 	i := 366
 	
 	for i >= 0 {
 		user_id := 1
 		random_mood := rand.Intn(10) + 1
-		random_note := fmt.Sprintf("Note %d", i)
+		random_note := moodNotes[rand.Intn(len(moodNotes))]
 		date_subtract := time.Now().AddDate(0, 0, -i)
 		insert_date := date_subtract.Format("2006-01-02 15:04:05")
 		_, err := DB.Exec("INSERT INTO moods (mood, notes, user_id, created_at) VALUES (?, ?, ?, ?);", random_mood, random_note, user_id, insert_date)
