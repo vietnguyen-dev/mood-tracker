@@ -24,13 +24,18 @@ func ApiKeyAuth(next http.Handler) http.Handler {
 		db := utils.GetDB()
 		
 		// hash the key
-        hashed := sha256.Sum256(apiKey)
-        hashedBytes := hashed[:]  // convert array -> slice
+		decodedKey, err := base64.StdEncoding.DecodeString(apiKey)
+		if err != nil {
+			http.Error(w, "Invalid API key", http.StatusUnauthorized)
+			return
+		}
+        hashed := sha256.Sum256(decodedKey)
+		hashedBytes := hashed[:]  // convert array -> slice
 		byteToString := base64.StdEncoding.EncodeToString(hashedBytes)
 
 		var id int64
 		var hashedKey string
-		err := db.QueryRow("SELECT * FROM vw_api_keys WHERE hashed_key = ?;", hashedBytes).Scan(&id, &hashedKey)
+		err = db.QueryRow("SELECT * FROM vw_api_keys WHERE hashed_key = ?;", hashedBytes).Scan(&id, &hashedKey)
 		if sql.ErrNoRows == err {
 			http.Error(w, "API key is not registered", http.StatusUnauthorized)
 			log.Println("Error querying API key: ", err, "hashedKey: ", hashedKey, "byteToString: ", byteToString)
