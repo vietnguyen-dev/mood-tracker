@@ -26,6 +26,7 @@ func main() {
 	host := os.Getenv("HOST")
 	r := mux.NewRouter()
 	r.Host(host)
+	r.Use(middleware.Logging)
 	r.Use(middleware.ApiKeyAuth)
 	api := r.PathPrefix("/api").Subrouter()
 
@@ -34,6 +35,12 @@ func main() {
 	api.HandleFunc("/moods/{user_id}", routes.InsertMood).Methods("POST")
 	api.HandleFunc("/moods", routes.UpdateMood).Methods("PUT")
 	api.HandleFunc("/moods", routes.DeleteMood).Methods("DELETE")
+
+	// Reports
+	api.HandleFunc("/reports", routes.GetReports).Methods("GET")
+	api.HandleFunc("/reports", routes.InsertReport).Methods("POST")
+	api.HandleFunc("/reports", routes.UpdateReport).Methods("PUT")
+	api.HandleFunc("/reports", routes.DeleteReport).Methods("DELETE")
 
 	http.ListenAndServe(":8080", r)
 }
