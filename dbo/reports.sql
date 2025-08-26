@@ -1,8 +1,9 @@
-CREATE TABLE moods(
+CREATE TABLE reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    mood INTEGER NOT NULL,
-    notes TEXT NOT NULL,
     user_id VARCHAR(255) NOT NULL,
+    report TEXT NOT NULL,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NULL,
     deleted_at DATETIME NULL

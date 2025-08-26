@@ -4,13 +4,15 @@
 package main
 
 import (
-	"time"
-	"math/rand"
-	"github.com/joho/godotenv"
-	"os"
 	"database/sql"
-	"log"
 	"fmt"
+	"log"
+	"math/rand"
+	"os"
+	"time"
+
+	"github.com/joho/godotenv"
+	_ "github.com/mattn/go-sqlite3"
 )
 var DB *sql.DB
 
@@ -20,14 +22,15 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	dbPath := os.Getenv("DB_PATH")
+	user_id := os.Getenv("TEST_USER_ID")
 	fmt.Println("dbPath: ", dbPath)
+	fmt.Println("user_id: ", user_id)
     var dbErr error
     DB, dbErr = sql.Open("sqlite3", dbPath)
-	defer DB.Close()
     if dbErr != nil {
         log.Fatal("Error opening database")
     }
-	
+	defer DB.Close()
 	// Array of 3 realistic mood notes
 	moodNotes := []string{
 		"Feeling productive and energetic today!",
@@ -38,7 +41,6 @@ func main() {
 	i := 366
 	
 	for i >= 0 {
-		user_id := 1
 		random_mood := rand.Intn(10) + 1
 		random_note := moodNotes[rand.Intn(len(moodNotes))]
 		date_subtract := time.Now().AddDate(0, 0, -i)

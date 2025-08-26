@@ -9,7 +9,7 @@ type Mood struct {
 	ID int `json:"id"`
 	Mood int `json:"mood"`
 	Note string `json:"note"`
-	UserId int `json:"user_id"`
+	UserId string `json:"user_id"`
 	CreatedAt sql.NullString `json:"created_at"`
 	UpdatedAt sql.NullString `json:"updated_at"`
 	DeletedAt sql.NullString `json:"deleted_at"`

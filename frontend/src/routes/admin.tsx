@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useUser } from "@clerk/clerk-react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Chart as ChartJS,
@@ -14,9 +15,17 @@ import type { TooltipItem } from "chart.js";
 import { Line } from "react-chartjs-2";
 import refresh from "../assets/refresh-removebg-preview.png";
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+const API_URL = import.meta.env.VITE_API_URL;
+const headers = {
+  "Content-Type": "application/json",
+  "x-api-key": API_KEY,
+};
+
 export const Route = createFileRoute("/admin")({
   component: Admin,
 });
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -119,9 +128,6 @@ let sampleData = [
   },
 ];
 
-const labels = sampleData.map((data) => data.date);
-const moodData = sampleData.map((data) => data.mood);
-
 interface iData {
   labels: string[] | [];
   datasets: {
@@ -132,21 +138,15 @@ interface iData {
   }[];
 }
 
-const data = {
-  labels,
-  datasets: [
-    {
-      label: "Mood Ratings",
-      data: moodData,
-      borderColor: "rgb(51, 60, 77)",
-      backgroundColor: "rgb(51, 60, 77)",
-    },
-  ],
-};
-
 function Admin() {
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  const { user } = useUser();
+  const [startDate, setStartDate] = useState<string>(
+    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] +
+      "00:00:00"
+  );
+  const [endDate, setEndDate] = useState<string>(
+    new Date().toISOString().split("T")[0] + "24:00:00"
+  );
   const [mood, setMood] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
   const [timeFrame, setTimeFrame] = useState<string>("");
@@ -161,6 +161,30 @@ function Admin() {
       },
     ],
   });
+  console.log(user);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(
+        `${API_URL}/api/moods?start_date=${startDate}&end_date=${endDate}`,
+        { headers }
+      );
+      const data = await response.json();
+      const labels = data.map((item: any) => item.date);
+      const moodData = data.map((item: any) => item.mood);
+      setData({
+        labels,
+        datasets: [
+          {
+            label: "Mood Ratings",
+            data: moodData,
+            borderColor: "rgb(51, 60, 77)",
+            backgroundColor: "rgb(51, 60, 77)",
+          },
+        ],
+      });
+    };
+    fetchData();
+  }, []);
 
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStartDate(e.target.value);
