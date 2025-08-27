@@ -127,7 +127,10 @@ function Admin() {
       );
       const data = await response.json();
       console.log(data);
-      const labels = data.map((item: any) => item.date);
+      const labels = data.map((item: any) => {
+        console.log(item.created_at.String);
+        return new Date(item.created_at.String).toLocaleDateString();
+      });
       const moodData = data.map((item: any) => item.mood);
       setData({
         labels,
