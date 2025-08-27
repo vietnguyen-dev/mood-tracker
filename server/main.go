@@ -1,12 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 	"github.com/vietnguyen-dev/go-server/middleware"
 	"github.com/vietnguyen-dev/go-server/routes"
 	"github.com/vietnguyen-dev/go-server/utils"
@@ -24,12 +25,10 @@ func main() {
 	}
 	defer utils.CloseDB()
 
-	host := os.Getenv("HOST")
 	r := mux.NewRouter()
-	r.Host(host)
 	r.Use(middleware.Logging)
 	r.Use(middleware.ApiKeyAuth)
-	r.Use(middleware.Cors)
+
 	api := r.PathPrefix("/api").Subrouter()
 
 	// Moods
@@ -38,5 +37,13 @@ func main() {
 	api.HandleFunc("/moods", routes.UpdateMood).Methods("PUT")
 	api.HandleFunc("/moods", routes.DeleteMood).Methods("DELETE")
 
-	http.ListenAndServe(":8080", r)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:5173"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "x-api-key", "Access-Control-Allow-Origin", "Application/json"},
+	})
+	handler := c.Handler(r)
+
+	fmt.Println("Server is running on port 8080")
+	http.ListenAndServe(":8080", handler)
 }

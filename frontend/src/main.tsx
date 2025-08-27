@@ -32,6 +32,6 @@ if (!rootElement.innerHTML) {
       <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
         <RouterProvider router={router} />
       </ClerkProvider>
-    </StrictMode>
+    </StrictMode>,
   );
 }

@@ -17,10 +17,6 @@ import refresh from "../assets/refresh-removebg-preview.png";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-const headers = {
-  "Content-Type": "application/json",
-  "x-api-key": API_KEY,
-};
 
 export const Route = createFileRoute("/admin")({
   component: Admin,
@@ -77,57 +73,6 @@ const moodOptions = [
   { label: "10", value: 10 },
 ];
 
-let sampleData = [
-  {
-    date: "2025-01-01",
-    mood: 1,
-    notes: "I'm feeling great!",
-  },
-  {
-    date: "2025-01-02",
-    mood: 2,
-    notes: "I'm feeling good!",
-  },
-  {
-    date: "2025-01-03",
-  },
-  {
-    date: "2025-01-04",
-    mood: 4,
-    notes: "I'm feeling bad!",
-  },
-
-  {
-    date: "2025-01-05",
-    mood: 5,
-    notes: "I'm feeling terrible!",
-  },
-
-  {
-    date: "2025-01-06",
-    mood: 6,
-    notes: "I'm feeling terrible!",
-  },
-
-  {
-    date: "2025-01-07",
-    mood: 7,
-    notes: "I'm feeling terrible!",
-  },
-
-  {
-    date: "2025-01-08",
-    mood: 8,
-    notes: "I'm feeling terrible!",
-  },
-
-  {
-    date: "2025-01-09",
-    mood: 9,
-    notes: "I'm feeling terrible!",
-  },
-];
-
 interface iData {
   labels: string[] | [];
   datasets: {
@@ -138,15 +83,22 @@ interface iData {
   }[];
 }
 
+function formatDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function Admin() {
   const { user } = useUser();
-  const [startDate, setStartDate] = useState<string>(
-    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] +
-      "00:00:00"
-  );
-  const [endDate, setEndDate] = useState<string>(
-    new Date().toISOString().split("T")[0] + "24:00:00"
-  );
+  const [startDate, setStartDate] = useState<string>(formatDate(new Date()));
+  const [endDate, setEndDate] = useState<string>(() => {
+    let today = new Date();
+    let pastDate = new Date(today);
+    pastDate.setDate(today.getDate() - 7);
+    return formatDate(pastDate);
+  });
   const [mood, setMood] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
   const [timeFrame, setTimeFrame] = useState<string>("");
@@ -161,14 +113,20 @@ function Admin() {
       },
     ],
   });
-  console.log(user);
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(
-        `${API_URL}/api/moods?start_date=${startDate}&end_date=${endDate}`,
-        { headers }
+        `${API_URL}/api/moods/${user?.id}?start_date=${endDate + "%00:00:00"}&end_date=${startDate + "%24:00:00"}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": API_KEY,
+          },
+        }
       );
       const data = await response.json();
+      console.log(data);
       const labels = data.map((item: any) => item.date);
       const moodData = data.map((item: any) => item.mood);
       setData({
@@ -187,6 +145,7 @@ function Admin() {
   }, []);
 
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
     setStartDate(e.target.value);
   };
 

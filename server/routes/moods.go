@@ -1,13 +1,14 @@
 package routes
 
 import (
-	"net/http"
-	"github.com/vietnguyen-dev/go-server/utils"
-	"github.com/gorilla/mux"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 	"github.com/vietnguyen-dev/go-server/routes/models"
+	"github.com/vietnguyen-dev/go-server/utils"
 )
 
 func GetMoods(w http.ResponseWriter, r *http.Request) {
