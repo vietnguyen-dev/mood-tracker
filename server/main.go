@@ -31,18 +31,21 @@ func main() {
 
 	api := r.PathPrefix("/api").Subrouter()
 
-	// Moods
-	api.HandleFunc("/moods/{user_id}", routes.GetMoods).Methods("GET")
-	api.HandleFunc("/moods/{user_id}", routes.InsertMood).Methods("POST")
-	api.HandleFunc("/moods", routes.UpdateMood).Methods("PUT")
-	api.HandleFunc("/moods", routes.DeleteMood).Methods("DELETE")
-
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5173"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "x-api-key", "Access-Control-Allow-Origin", "Application/json"},
 	})
 	handler := c.Handler(r)
+
+	// Moods
+	api.HandleFunc("/moods/{user_id}", routes.GetMoods).Methods("GET")
+	api.HandleFunc("/moods/{user_id}", routes.InsertMood).Methods("POST")
+	api.HandleFunc("/moods", routes.UpdateMood).Methods("PUT")
+	api.HandleFunc("/moods", routes.DeleteMood).Methods("DELETE")
+
+	api.HandleFunc("/openai/generate-report", routes.GenerateReport).Methods("GET")
+
 
 	fmt.Println("Server is running on port 8080")
 	http.ListenAndServe(":8080", handler)

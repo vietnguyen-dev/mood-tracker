@@ -14,6 +14,7 @@ import {
 import type { TooltipItem } from "chart.js";
 import { Line } from "react-chartjs-2";
 import refresh from "../assets/refresh-removebg-preview.png";
+import Reporting from "../components/reporting";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -127,10 +128,9 @@ function Admin() {
       );
       const data = await response.json();
       console.log(data);
-      const labels = data.map((item: any) => {
-        console.log(item.created_at.String);
-        return new Date(item.created_at.String).toLocaleDateString();
-      });
+      const labels = data.map((item: any) =>
+        new Date(item.created_at.String).toLocaleDateString()
+      );
       const moodData = data.map((item: any) => item.mood);
       setData({
         labels,
@@ -303,19 +303,7 @@ function Admin() {
             </div>
           </div>
         </section>
-        <section className="my-12 flex justify-between flex-wrap">
-          <button className="btn btn-neutral text-white">
-            Generate Report
-          </button>
-          <div className="flex gap-3">
-            <button className="btn btn-primary" disabled={true}>
-              Save
-            </button>
-            <button className="btn btn-accent" disabled={true}>
-              X
-            </button>
-          </div>
-        </section>
+        <Reporting />
       </div>
       <dialog id="new-mood-modal" className="modal">
         <div className="modal-box">
