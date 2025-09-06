@@ -1,9 +1,32 @@
 import { useState } from "react";
 
-const Reporting = () => {
-  const [report, setReport] = useState<string>("");
+const API_KEY = import.meta.env.VITE_API_KEY;
+const API_URL = import.meta.env.VITE_API_URL;
+
+interface iReportData {
+  data: [];
+}
+
+const Reporting: React.FC<iReportData> = ({ data }) => {
+  console.log(data);
+  const [report, setReport] = useState<string>("dfsdf");
 
   const handleGenerateReport = async () => {
+    const response = await fetch(
+      `${API_URL}/api/generate-report?question=write a report about my mood based on the following data`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+        },
+        body: JSON.stringify({
+          moodData: data,
+        }),
+      }
+    );
+    const report = await response.json();
+    console.log(report);
     setReport("Report generated");
   };
 

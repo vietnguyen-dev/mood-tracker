@@ -103,6 +103,7 @@ function Admin() {
   const [mood, setMood] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
   const [timeFrame, setTimeFrame] = useState<string>("");
+  const [reportData, setReportData] = useState([]);
   const [data, setData] = useState<iData>({
     labels: [],
     datasets: [
@@ -127,7 +128,7 @@ function Admin() {
         }
       );
       const data = await response.json();
-      console.log(data);
+      setReportData(data);
       const labels = data.map((item: any) =>
         new Date(item.created_at.String).toLocaleDateString()
       );
@@ -303,7 +304,7 @@ function Admin() {
             </div>
           </div>
         </section>
-        <Reporting />
+        <Reporting data={reportData} />
       </div>
       <dialog id="new-mood-modal" className="modal">
         <div className="modal-box">

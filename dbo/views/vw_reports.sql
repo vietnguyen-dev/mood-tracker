@@ -3,6 +3,7 @@ SELECT
     r.id,
     r.user_id,
     r.report,
+    r.mood_data,
     r.start_date,
     r.end_date,
     r.created_at,

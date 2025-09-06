@@ -59,7 +59,7 @@ func InsertMood(w http.ResponseWriter, r *http.Request) {
 	db := utils.GetDB()
 	vars := mux.Vars(r)
 	user_id := vars["user_id"]
-	
+
 	insert, err := db.Exec("INSERT INTO moods (mood, notes, user_id, created_at) VALUES (?, ?, ?, ?);", moodRequest.Mood, moodRequest.Note, user_id, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -88,20 +88,20 @@ func UpdateMood(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	rows_affected, err := edit.RowsAffected()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("Mood updated successfully with rows affected: %d", rows_affected)))
 }
 
 func DeleteMood(w http.ResponseWriter, r *http.Request) {
 	db := utils.GetDB()
-	delete_id:= r.URL.Query().Get("delete_id")
+	delete_id := r.URL.Query().Get("delete_id")
 	if delete_id == "" {
 		http.Error(w, "Missing delete_id", http.StatusBadRequest)
 		return
@@ -122,3 +122,4 @@ func DeleteMood(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("Mood deleted successfully with rows affected: %d", rows_affected)))
 }
+

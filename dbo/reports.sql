@@ -2,6 +2,7 @@ CREATE TABLE reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id VARCHAR(255) NOT NULL,
     report TEXT NOT NULL,
+    mood_data TEXT NOT NULL,
     start_date DATETIME NOT NULL,
     end_date DATETIME NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -44,8 +44,7 @@ func main() {
 	api.HandleFunc("/moods", routes.UpdateMood).Methods("PUT")
 	api.HandleFunc("/moods", routes.DeleteMood).Methods("DELETE")
 
-	api.HandleFunc("/openai/generate-report", routes.GenerateReport).Methods("GET")
-
+	api.HandleFunc("/generate-report", routes.GenerateReport).Methods("POST")
 
 	fmt.Println("Server is running on port 8080")
 	http.ListenAndServe(":8080", handler)
