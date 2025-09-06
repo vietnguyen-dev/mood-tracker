@@ -6,22 +6,26 @@ import (
 )
 
 type Mood struct {
-	ID int `json:"id"`
-	Mood int `json:"mood"`
-	Note string `json:"note"`
-	UserId string `json:"user_id"`
+	ID        int            `json:"id"`
+	Mood      int            `json:"mood"`
+	Note      string         `json:"note"`
+	UserId    string         `json:"user_id"`
 	CreatedAt sql.NullString `json:"created_at"`
 	UpdatedAt sql.NullString `json:"updated_at"`
 	DeletedAt sql.NullString `json:"deleted_at"`
 }
 
 type MoodRequest struct {
-	Mood int `json:"mood"`
-	Note string `json:"notes"`
-	UserId int `json:"user_id"`
+	Mood   int    `json:"mood"`
+	Note   string `json:"notes"`
+	UserId int    `json:"user_id"`
 }
 
-func (e* MoodRequest) Validate() error {
+type ReportRequest struct {
+	MoodData []Mood `json:"mood_data"`
+}
+
+func (e *MoodRequest) Validate() error {
 	if e.Mood < 1 || e.Mood > 10 {
 		return errors.New("mood must be between 1 and 10")
 	}
@@ -29,18 +33,25 @@ func (e* MoodRequest) Validate() error {
 		return errors.New("note is required")
 	}
 	if e.UserId == 0 {
-		return errors.New("note is required")	
+		return errors.New("note is required")
+	}
+	return nil
+}
+
+func (e *ReportRequest) Validate() error {
+	if len(e.MoodData) == 0 {
+		return errors.New("No moods to be reported")
 	}
 	return nil
 }
 
 type EditMoodRequest struct {
-	ID int `json:"id"`
-	Mood int `json:"mood"`
+	ID    int    `json:"id"`
+	Mood  int    `json:"mood"`
 	Notes string `json:"notes"`
 }
 
-func (e* EditMoodRequest) Validate() error {
+func (e *EditMoodRequest) Validate() error {
 	if e.ID == 0 {
 		return errors.New("id is required")
 	}
@@ -52,3 +63,4 @@ func (e* EditMoodRequest) Validate() error {
 	}
 	return nil
 }
+

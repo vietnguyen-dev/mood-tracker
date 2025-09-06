@@ -13,7 +13,7 @@ const Reporting: React.FC<iReportData> = ({ data }) => {
 
   const handleGenerateReport = async () => {
     const response = await fetch(
-      `${API_URL}/api/generate-report?question=write a report about my mood based on the following data`,
+      `${API_URL}/api/generate-report a report about my mood based on the following data`,
       {
         method: "POST",
         headers: {
@@ -23,7 +23,7 @@ const Reporting: React.FC<iReportData> = ({ data }) => {
         body: JSON.stringify({
           moodData: data,
         }),
-      }
+      },
     );
     const report = await response.json();
     console.log(report);
@@ -36,7 +36,7 @@ const Reporting: React.FC<iReportData> = ({ data }) => {
 
   return (
     <>
-      <section className="my-12 flex justify-between flex-wrap">
+      <section className="my-12 flex justify-between">
         <button
           className="btn btn-neutral text-white"
           onClick={handleGenerateReport}
@@ -56,7 +56,11 @@ const Reporting: React.FC<iReportData> = ({ data }) => {
           </button>
         </div>
       </section>
-      {report.length > 0 && <div className="mt-4">{report}</div>}
+      <section>
+        {report.length > 0 && (
+          <div className="border-1 border-red-500">{report}</div>
+        )}
+      </section>
     </>
   );
 };

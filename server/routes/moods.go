@@ -122,4 +122,3 @@ func DeleteMood(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("Mood deleted successfully with rows affected: %d", rows_affected)))
 }
-

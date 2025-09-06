@@ -2,25 +2,20 @@ package routes
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/openai/openai-go/v2"
 	"github.com/openai/openai-go/v2/option"
+	"github.com/vietnguyen-dev/go-server/routes/models"
 )
 
 func GenerateReport(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Generating report")
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
-		http.Error(w, "OPENAI_API_KEY is not set", http.StatusInternalServerError)
-		return
-	}
-
-	question := r.URL.Query().Get("question")
-	if question == "" {
-		http.Error(w, "question is required", http.StatusBadRequest)
+		http.Error(w, "no api key for openai is not set", http.StatusInternalServerError)
 		return
 	}
 
@@ -28,9 +23,22 @@ func GenerateReport(w http.ResponseWriter, r *http.Request) {
 		option.WithAPIKey(apiKey), // defaults to os.LookupEnv("OPENAI_API_KEY")
 	)
 
+	var reportRequest models.ReportRequest
+	err := json.NewDecoder(r.Body).Decode(&reportRequest)
+	if err := reportRequest.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	jsonText, err := json.Marshal(reportRequest.MoodData)
+	if err != nil {
+		panic(err)
+	}
+	reportText := fmt.Sprintf("Using this data %s, create me a report of how my moods have been", string(jsonText))
+
 	stream := client.Chat.Completions.NewStreaming(context.TODO(), openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
-			openai.UserMessage(question),
+			openai.UserMessage(reportText),
 		},
 		Seed:  openai.Int(0),
 		Model: openai.ChatModelGPT5Nano,
@@ -69,4 +77,3 @@ func GenerateReport(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(acc.Choices[0].Message.Content))
 }
-
