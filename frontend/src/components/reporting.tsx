@@ -12,19 +12,14 @@ const Reporting: React.FC<iReportData> = ({ data }) => {
   const [report, setReport] = useState<string>("dfsdf");
 
   const handleGenerateReport = async () => {
-    const response = await fetch(
-      `${API_URL}/api/generate-report a report about my mood based on the following data`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY,
-        },
-        body: JSON.stringify({
-          moodData: data,
-        }),
+    const response = await fetch(`${API_URL}/api/generate-report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY,
       },
-    );
+      body: JSON.stringify({ moodData: data }),
+    });
     const report = await response.json();
     console.log(report);
     setReport("Report generated");

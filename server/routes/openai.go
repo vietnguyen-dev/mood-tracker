@@ -42,8 +42,7 @@ func GenerateReport(w http.ResponseWriter, r *http.Request) {
 	- a brief summary of how its been going
 	- what are some of my triggers
 	- what are some things that make my mood better
-	`,
-		string(jsonText))
+	`, string(jsonText))
 
 	stream := client.Chat.Completions.NewStreaming(context.TODO(), openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{

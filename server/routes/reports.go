@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -18,7 +19,18 @@ func GetReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT * FROM vw_reports where user_id = ?;", user_id)
+	page := r.URL.Query().Get("page")
+	amount := r.URL.Query().Get("amount")
+	if page == "" {
+		page = "1"
+	}
+	if amount == "" {
+		amount = "10"
+	}
+
+	query := fmt.Sprintf("SELECT * FROM vw_reports where user_id = %s LIMIT %s OFFSET (%s * %s);", user_id, amount, page, amount)
+
+	rows, err := db.Query(query)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
