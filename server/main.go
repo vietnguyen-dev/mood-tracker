@@ -47,6 +47,9 @@ func main() {
 	api.HandleFunc("/moods", routes.UpdateMood).Methods("PUT")
 	api.HandleFunc("/moods", routes.DeleteMood).Methods("DELETE")
 
+	// Reports
+	api.HandleFunc("/reports/{user_id}", routes.GetMoods).Methods("GET")
+
 	api.HandleFunc("/generate-report", routes.GenerateReport).Methods("POST")
 
 	fmt.Println("Server is running on port 8080")

@@ -1,20 +1,20 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
+	"time"
 )
 
 type ReportRequest struct {
-	Id          int            `json:"id"`
-	UserId      string         `json:"user_id"`
-	Report      string         `json:"report"`
-	MoodData    string         `json:"mood_data"`
-	StartDate   sql.NullString `json:"start_date"`
-	EndDate     sql.NullString `json:"end_date"`
-	CreatedDate sql.NullString `json:"created_date"`
-	UpdatedDate sql.NullString `json:"updated_date"`
-	DeletedDate sql.NullString `json:"deleted_date"`
+	Id        int        `json:"id"`
+	UserId    string     `json:"user_id"`
+	Report    string     `json:"report"`
+	MoodData  string     `json:"mood_data"`
+	StartDate time.Time  `json:"start_date"`
+	EndDate   time.Time  `json:"end_date"`
+	CreatedAt time.Time  `json:"created_date"`
+	UpdatedAt *time.Time `json:"updated_date"`
+	DeletedAt *time.Time `json:"deleted_date"`
 }
 
 func (e *ReportRequest) Validate() error {
@@ -22,7 +22,28 @@ func (e *ReportRequest) Validate() error {
 		return errors.New("no id")
 	}
 	if e.UserId == "" {
-		return errors.New("no id")
+		return errors.New("no user_id")
+	}
+	if e.Report == "" {
+		return errors.New("no report")
+	}
+	if e.MoodData == "" {
+		return errors.New("no mood_data")
+	}
+	if e.StartDate.IsZero() {
+		return errors.New("no start_date")
+	}
+	if e.EndDate.IsZero() {
+		return errors.New("no end_date")
+	}
+	if e.CreatedAt.IsZero() {
+		return errors.New("no end_date")
+	}
+	if e.UpdatedAt != nil && e.CreatedAt.Before(*e.UpdatedAt) {
+		return errors.New("no end_date")
+	}
+	if e.DeletedAt != nil && e.CreatedAt.Before(*e.DeletedAt) {
+		return errors.New("no end_date")
 	}
 	return nil
 }

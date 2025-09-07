@@ -27,7 +27,7 @@ func GetReports(w http.ResponseWriter, r *http.Request) {
 	var reports []models.ReportRequest
 	for rows.Next() {
 		var report models.ReportRequest
-		err := rows.Scan(&report.Id, &report.Mood, &report.Note, &report.UserId, &report.CreatedAt, &report.UpdatedAt, &report.DeletedAt)
+		err := rows.Scan(&report.Id, &report.UserId, &report.MoodData, &report.StartDate, &report.EndDate, &report.CreatedAt, &report.UpdatedAt, &report.DeletedAt)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
