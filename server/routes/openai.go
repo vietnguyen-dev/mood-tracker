@@ -34,7 +34,16 @@ func GenerateReport(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	reportText := fmt.Sprintf("Using this data %s, create me a report of how my moods have been", string(jsonText))
+	reportText := fmt.Sprintf(`Using this data %s,
+	create me a report of how my moods have been
+
+	include: 
+	- highest, lowest, mean, median, mode mood
+	- a brief summary of how its been going
+	- what are some of my triggers
+	- what are some things that make my mood better
+	`,
+		string(jsonText))
 
 	stream := client.Chat.Completions.NewStreaming(context.TODO(), openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
@@ -73,7 +82,6 @@ func GenerateReport(w http.ResponseWriter, r *http.Request) {
 	if stream.Err() != nil {
 		panic(stream.Err())
 	}
-	fmt.Println(acc.Choices[0].Message.Content)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(acc.Choices[0].Message.Content))
 }

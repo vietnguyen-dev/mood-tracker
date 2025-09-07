@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -19,6 +20,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	host := os.Getenv("HOST")
+
 	// Initialize database connection pool
 	if err := utils.InitDB(); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
@@ -32,7 +35,7 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5173"},
+		AllowedOrigins: []string{host},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "x-api-key", "Access-Control-Allow-Origin", "Application/json"},
 	})
