@@ -102,8 +102,14 @@ func UpdateMood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	message := fmt.Sprintf("mood sucessfully updated with id %s", strconv.FormatInt(rows_affected, 10))
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Mood updated successfully with rows affected: %d", rows_affected)))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	resp := models.Response{
+		Message: message,
+	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func DeleteMood(w http.ResponseWriter, r *http.Request) {
@@ -127,5 +133,12 @@ func DeleteMood(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Mood deleted successfully with rows affected: %d", rows_affected)))
+	message := fmt.Sprintf("mood sucessfully deleted with id %s", strconv.FormatInt(rows_affected, 10))
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	resp := models.Response{
+		Message: message,
+	}
+	json.NewEncoder(w).Encode(resp)
 }
