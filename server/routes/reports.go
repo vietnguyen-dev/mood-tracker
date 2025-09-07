@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/vietnguyen-dev/go-server/routes/models"
 	"github.com/vietnguyen-dev/go-server/utils"
 )
 
@@ -15,18 +17,24 @@ func GetReports(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "no user id", http.StatusBadRequest)
 		return
 	}
-	start_date := r.URL.Query().Get("start_date")
-	end_date := r.URL.Query().Get("end_date")
-	if start_date == "" || end_date == "" {
-		http.Error(w, "start_date and end_date are required", http.StatusBadRequest)
-		return
-	}
 
-	rows, err := db.Query("SELECT * FROM vw_moods where user_id = ? AND created_at >= ? AND created_at <= ?;", user_id, start_date, end_date)
+	rows, err := db.Query("SELECT * FROM vw_reports where user_id = ?;", user_id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
-}
+	var reports []models.ReportRequest
+	for rows.Next() {
+		var report models.ReportRequest
+		err := rows.Scan(&report.Id, &report.Mood, &report.Note, &report.UserId, &report.CreatedAt, &report.UpdatedAt, &report.DeletedAt)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		reports = append(reports, report)
+	}
 
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(reports)
+}

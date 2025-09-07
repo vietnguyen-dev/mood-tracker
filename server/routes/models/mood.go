@@ -21,7 +21,7 @@ type MoodRequest struct {
 	UserId int    `json:"user_id"`
 }
 
-type ReportRequest struct {
+type DataForReportRequest struct {
 	MoodData []Mood `json:"mood_data"`
 }
 
@@ -38,7 +38,7 @@ func (e *MoodRequest) Validate() error {
 	return nil
 }
 
-func (e *ReportRequest) Validate() error {
+func (e *DataForReportRequest) Validate() error {
 	if len(e.MoodData) == 0 {
 		return errors.New("No moods to be reported")
 	}
@@ -63,4 +63,3 @@ func (e *EditMoodRequest) Validate() error {
 	}
 	return nil
 }
-

@@ -23,7 +23,7 @@ func GenerateReport(w http.ResponseWriter, r *http.Request) {
 		option.WithAPIKey(apiKey), // defaults to os.LookupEnv("OPENAI_API_KEY")
 	)
 
-	var reportRequest models.ReportRequest
+	var reportRequest models.DataForReportRequest
 	err := json.NewDecoder(r.Body).Decode(&reportRequest)
 	if err := reportRequest.Validate(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
