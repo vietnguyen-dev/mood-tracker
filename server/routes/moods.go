@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -70,8 +71,14 @@ func InsertMood(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(fmt.Sprintf("Mood inserted successfully with id: %d", insert_id)))
+
+	message := fmt.Sprintf("mood sucessfully created with id %s", strconv.FormatInt(insert_id, 10))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	resp := models.Response{
+		Message: message,
+	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func UpdateMood(w http.ResponseWriter, r *http.Request) {

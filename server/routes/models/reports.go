@@ -37,13 +37,13 @@ func (e *ReportRequest) Validate() error {
 		return errors.New("no end_date")
 	}
 	if e.CreatedAt.IsZero() {
-		return errors.New("no end_date")
+		return errors.New("no created_at")
 	}
 	if e.UpdatedAt != nil && e.CreatedAt.Before(*e.UpdatedAt) {
-		return errors.New("no end_date")
+		return errors.New("no updated_at")
 	}
 	if e.DeletedAt != nil && e.CreatedAt.Before(*e.DeletedAt) {
-		return errors.New("no end_date")
+		return errors.New("no deleted_at")
 	}
 	return nil
 }
